@@ -417,7 +417,7 @@ async function handleSalesConversation(sender_psid, userText) {
       messages: messagesToSend,
       model: 'llama-3.1-8b-instant',
       temperature: 0.6,
-      max_tokens: 3000,
+      max_tokens: 800,
     });
 
     const aiReply = chatCompletion.choices[0]?.message?.content || "ধন্যবাদ আপনার বার্তার জন্য! আমি কীভাবে আপনাকে সাহায্য করতে পারি?";
