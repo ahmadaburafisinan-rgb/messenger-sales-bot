@@ -66,6 +66,23 @@ Communication Style:
 `;
 
 // Meta Verification Route (GET)
+// Public Privacy Policy Page for Meta Compliance
+app.get('/privacy', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head><title>Privacy Policy</title></head>
+    <body style="font-family: Arial, sans-serif; padding: 40px; line-height: 1.6;">
+      <h1>Privacy Policy</h1>
+      <p>This Facebook Messenger sales bot processes incoming chat messages to provide customer assistance and product recommendations.</p>
+      <h2>Data Collection</h2>
+      <p>We do not store, sell, or share your personal data with third parties. Message contents are temporarily processed solely to send real-time chat responses.</p>
+      <h2>Data Deletion</h2>
+      <p>To request data deletion, please message our Facebook Page directly or clear your conversation history on Facebook Messenger.</p>
+    </body>
+    </html>
+  `);
+});
 app.get('/webhook', (req, res) => {
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
