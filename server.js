@@ -10,6 +10,9 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "my_secret_sales_token_123";
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 
+// ব্যবহারকারীদের মেসেজ হিস্ট্রি ধরে রাখার জন্য মেমোরি অবজেক্ট
+const userConversations = {};
+
 // Complete Sales System Prompt
 const SYSTEM_PROMPT = `
 # SYSTEM ROLE
@@ -331,7 +334,6 @@ Answer correctly.
 Sell professionally.
 `;
 
-// Meta Verification Route (GET)
 // Public Privacy Policy Page for Meta Compliance
 app.get('/privacy', (req, res) => {
   res.send(`
@@ -349,6 +351,8 @@ app.get('/privacy', (req, res) => {
     </html>
   `);
 });
+
+// Meta Verification Route (GET)
 app.get('/webhook', (req, res) => {
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
@@ -366,12 +370,9 @@ app.get('/webhook', (req, res) => {
 app.post('/webhook', async (req, res) => {
   const body = req.body;
 
-  // PRINT EVERY INCOMING WEBHOOK PAYLOAD TO RENDER LOGS
   console.log('--- NEW WEBHOOK EVENT RECEIVED ---');
-  console.log(JSON.stringify(body, null, 2));
 
   if (body.object === 'page') {
-    // Return 200 OK to Meta immediately so it doesn't time out
     res.status(200).send('EVENT_RECEIVED');
 
     for (const entry of body.entry) {
@@ -393,17 +394,34 @@ app.post('/webhook', async (req, res) => {
 
 async function handleSalesConversation(sender_psid, userText) {
   try {
+    // প্রতিটা ইউজার আইডি (PSID)-এর জন্য আগে কোনো মেসেজ না থাকলে নতুন অ্যারে তৈরি করবে
+    if (!userConversations[sender_psid]) {
+      userConversations[sender_psid] = [];
+    }
+
+    // ইউজারের নতুন মেসেজটি চ্যাট হিস্ট্রিতে যোগ করা হচ্ছে
+    userConversations[sender_psid].push({ role: 'user', content: userText });
+
+    // মেমোরি অতিরিক্ত বড় হয়ে যাওয়া সামলাতে সর্বশেষ ১০টি মেসেজ পাঠানো হচ্ছে
+    const recentHistory = userConversations[sender_psid].slice(-10);
+
+    // সিস্টেম প্রম্পট ও কথপোকথনের সম্পূর্ণ ইতিহাস Groq-এ পাঠানো হচ্ছে
+    const messagesToSend = [
+      { role: 'system', content: SYSTEM_PROMPT },
+      ...recentHistory
+    ];
+
     const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: userText }
-      ],
+      messages: messagesToSend,
       model: 'llama-3.1-8b-instant',
       temperature: 0.6,
-      max_tokens: 250,
+      max_tokens: 300,
     });
 
-    const aiReply = chatCompletion.choices[0]?.message?.content || "ধন্যবাদ আপনার বার্তার জন্য! আমি আপনাকে কীভাবে সাহায্য করতে পারি?";
+    const aiReply = chatCompletion.choices[0]?.message?.content || "ধন্যবাদ আপনার বার্তার জন্য! আমি কীভাবে আপনাকে সাহায্য করতে পারি?";
+
+    // এআই-এর উত্তরটিও মেমোরিতে সেভ করে রাখা হচ্ছে
+    userConversations[sender_psid].push({ role: 'assistant', content: aiReply });
 
     console.log(`Sending AI Reply to ${sender_psid}: "${aiReply}"`);
 
