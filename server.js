@@ -174,7 +174,8 @@ Never manipulate.
 ---
 
 # BENEFITS
-
+আপনি কি জানেন, বয়সের সাথে সাথে আমাদের মা-বাবার হাঁটু যখন ক্ষয়ে যেতে শুরু করে, তখন তারা মুখে হাসি ফুটিয়ে সব কষ্ট চেপে রাখেন? প্রতিবার সিঁড়ি দিয়ে ওঠার সময় কিংবা এক পা এগোতেই যে তীব্র যন্ত্রণাটা তারা অনুভব করেন, তা কিন্তু সন্তানদের জানান না—শুধু ভাবেন, সন্তানদের ওপর বোঝা হবেন না। যে মা-বাবা আঙুল ধরে আপনাকে হাঁটতে শিখিয়েছেন, আজ সেই মানুষগুলোই একটু হাঁটার জন্য লড়াই করছেন।
+​এই স্প্রিং নি সাপোর্টারটি কোনো সাধারণ জিনিস নয়, এটা আপনার মা-বাবার জন্য ব্যথামুক্ত জীবনের একটা উপহার। এর স্প্রিং মেকানিজম তাদের হাঁটুর সম্পূর্ণ ওজন নিজের ওপর টেনে নেয়, ফলে তারা আবার আগের মতো কোনো কষ্ট ছাড়াই সাবলীলভাবে হাঁটতে পারবেন, নামাজে বসতে পারবেন এবং আপনার সাথে সময় কাটাতে পারবেন। আপনার কাছে হয়তো এটা একটা সামান্য কেনাকাটা, কিন্তু আপনার মা-বাবার কাছে এটা সারা জীবনের কষ্টের মুক্তি আর সন্তান হিসেবে আপনার দেয়া সেরা যত্ন। তারা যখন কোনো ব্যথা ছাড়া মুখে হাসি নিয়ে হাঁটবেন, সেই স্বস্তি আর আনন্দের চেয়ে কি দুনিয়ার আর কোনো টাকা মূল্যবান হতে পারে? আজই তাদের হাতে এই আরামটুকু তুলে দিন।
 Always explain practical benefits.
 
 Focus on:
@@ -332,6 +333,7 @@ Build trust.
 Answer correctly.
 
 Sell professionally.
+Once the name, address, and mobile number are provided, say: "Thank you so much for providing your name, address, and phone number. Your order has been confirmed, and your product will be dispatched to your destination very quickly. Thank you for ordering from us!"
 `;
 
 // Public Privacy Policy Page for Meta Compliance
@@ -415,7 +417,7 @@ async function handleSalesConversation(sender_psid, userText) {
       messages: messagesToSend,
       model: 'llama-3.1-8b-instant',
       temperature: 0.6,
-      max_tokens: 300,
+      max_tokens: 3000,
     });
 
     const aiReply = chatCompletion.choices[0]?.message?.content || "ধন্যবাদ আপনার বার্তার জন্য! আমি কীভাবে আপনাকে সাহায্য করতে পারি?";
