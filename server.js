@@ -65,36 +65,44 @@ Communication Style:
 - Use emojis sparingly.
 `;
 
-// Meta Verification Route
+// Meta Verification Route (GET)
 app.get('/webhook', (req, res) => {
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
   const challenge = req.query['hub.challenge'];
 
   if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+    console.log("WEBHOOK_VERIFIED");
     res.status(200).send(challenge);
   } else {
     res.sendStatus(403);
   }
 });
 
-// Incoming Message Route
+// Incoming Message Route (POST)
 app.post('/webhook', async (req, res) => {
   const body = req.body;
 
+  // PRINT EVERY INCOMING WEBHOOK PAYLOAD TO RENDER LOGS
+  console.log('--- NEW WEBHOOK EVENT RECEIVED ---');
+  console.log(JSON.stringify(body, null, 2));
+
   if (body.object === 'page') {
-    body.entry.forEach(async (entry) => {
+    // Return 200 OK to Meta immediately so it doesn't time out
+    res.status(200).send('EVENT_RECEIVED');
+
+    for (const entry of body.entry) {
       if (entry.messaging && entry.messaging[0]) {
         const webhook_event = entry.messaging[0];
-        const sender_psid = webhook_event.sender.id;
+        const sender_psid = webhook_event.sender ? webhook_event.sender.id : null;
 
-        if (webhook_event.message && webhook_event.message.text) {
+        if (webhook_event.message && webhook_event.message.text && sender_psid) {
           const userText = webhook_event.message.text;
+          console.log(`Processing message from PSID ${sender_psid}: "${userText}"`);
           await handleSalesConversation(sender_psid, userText);
         }
       }
-    });
-    res.status(200).send('EVENT_RECEIVED');
+    }
   } else {
     res.sendStatus(404);
   }
@@ -114,13 +122,17 @@ async function handleSalesConversation(sender_psid, userText) {
 
     const aiReply = chatCompletion.choices[0]?.message?.content || "ধন্যবাদ আপনার বার্তার জন্য! আমি আপনাকে কীভাবে সাহায্য করতে পারি?";
 
-    await axios.post(
+    console.log(`Sending AI Reply to ${sender_psid}: "${aiReply}"`);
+
+    const response = await axios.post(
       `https://graph.facebook.com/v18.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`,
       {
         recipient: { id: sender_psid },
         message: { text: aiReply }
       }
     );
+
+    console.log('Message delivered successfully to Meta API!', response.data);
   } catch (error) {
     console.error("Sales Handler Error:", error.response ? error.response.data : error.message);
   }
