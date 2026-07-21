@@ -132,7 +132,7 @@ async function handleSalesConversation(sender_psid, userText) {
         { role: 'system', content: SYSTEM_PROMPT },
         { role: 'user', content: userText }
       ],
-      model: 'llama3-8b-8192',
+      model: 'llama-3.1-8b-instant',
       temperature: 0.6,
       max_tokens: 250,
     });
