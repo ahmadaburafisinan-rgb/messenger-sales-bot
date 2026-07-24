@@ -1,12 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const axios = require('axios');
-const Groq = require('groq-sdk');
+const { GoogleGenAI } = require("@google/genai");
 
 const app = express();
 app.use(bodyParser.json());
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "my_secret_sales_token_123";
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 
@@ -442,14 +442,16 @@ async function handleSalesConversation(sender_psid, userText) {
       ...recentHistory
     ];
 
-    const chatCompletion = await groq.chat.completions.create({
-      messages: messagesToSend,
-      model: 'llama-3.1-8b-instant',
-      temperature: 0.6,
-      max_tokens: 800,
-    });
+    const response = await ai.models.generateContent({
+  model: "gemini-2.5-flash",
+  contents: messagesToSend.map(m => `${m.role}: ${m.content}`).join("\n"),
+  config: {
+    temperature: 0.6,
+    maxOutputTokens: 800,
+  }
+});
 
-    const aiReply = chatCompletion.choices[0]?.message?.content || "ধন্যবাদ আপনার বার্তার জন্য! আমি কীভাবে আপনাকে সাহায্য করতে পারি?";
+const aiReply = response.text || "ধন্যবাদ আপনার বার্তার জন্য! আমি কীভাবে আপনাকে সাহায্য করতে পারি?";
 
     // এআই-এর উত্তরটিও মেমোরিতে সেভ করে রাখা হচ্ছে
     userConversations[sender_psid].push({ role: 'assistant', content: aiReply });
