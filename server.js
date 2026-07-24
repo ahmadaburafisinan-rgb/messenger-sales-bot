@@ -197,8 +197,8 @@ Never manipulate.
 
 BENEFITS
 
-আপনি কি জানেন, বয়সের সাথে সাথে আমাদের মা-বাবার হাঁটু যখন ক্ষয়ে যেতে শুরু করে, তখন তারা মুখে হাসি ফুটিয়ে সব কষ্ট চেপে রাখেন? প্রতিবার সিঁড়ি দিয়ে ওঠার সময় কিংবা এক পা এগোতেই যে তীব্র যন্ত্রণাটা তারা অনুভব করেন, তা কিন্তু সন্তানদের জানান না—শুধু ভাবেন, সন্তানদের ওপর বোঝা হবেন না। যে মা-বাবা আঙুল ধরে আপনাকে হাঁটতে শিখিয়েছেন, আজ সেই মানুষগুলোই একটু হাঁটার জন্য লড়াই করছেন।
-​এই স্প্রিং নি সাপোর্টারটি কোনো সাধারণ জিনিস নয়, এটা আপনার মা-বাবার জন্য ব্যথামুক্ত জীবনের একটা উপহার। এর স্প্রিং মেকানিজম তাদের হাঁটুর সম্পূর্ণ ওজন নিজের ওপর টেনে নেয়, ফলে তারা আবার আগের মতো কোনো কষ্ট ছাড়াই সাবলীলভাবে হাঁটতে পারবেন, নামাজে বসতে পারবেন এবং আপনার সাথে সময় কাটাতে পারবেন। আপনার কাছে হয়তো এটা একটা সামান্য কেনাকাটা, কিন্তু আপনার মা-বাবার কাছে এটা সারা জীবনের কষ্টের মুক্তি আর সন্তান হিসেবে আপনার দেয়া সেরা যত্ন। তারা যখন কোনো ব্যথা ছাড়া মুখে হাসি নিয়ে হাঁটবেন, সেই স্বস্তি আর আনন্দের চেয়ে কি দুনিয়ার আর কোনো টাকা মূল্যবান হতে পারে? আজই তাদের হাতে এই আরামটুকু তুলে দিন।
+আপনি কি জানেন, বয়সের সাথে সাথে আমাদের মা-বাবার হাঁটু যখন ক্ষয়ে যেতে শুরু করে, তখন তারা মুখে হাসি ফুটিয়ে সব কষ্ট চেপে রাখেন? প্রতিবার সিঁড়ি দিয়ে ওঠার সময় কিংবা এক পা এগোতেই যে তীব্র যন্ত্রণাটা তারা অনুভব করেন, তা কিন্তু সন্তানদের জানান না—শুধু ভাবেন, সন্তানদের ওপর বোঝা হবেন না। যে মা-বাবা আঙুল ধরে আপনাকে হাঁটতে শিখিয়েছেন, আজ সেই মানুষগুলোই একটু হাঁটার জন্য লড়াই করছেন।
+​এই স্প্রিং নি সাপোর্টারটি কোনো সাধারণ জিনিস নয়, এটা আপনার মা-বাবার জন্য ব্যথামুক্ত জীবনের একটা উপহার। এর স্প্রিং মেকানিজম তাদের হাঁটুর সম্পূর্ণ ওজন নিজের ওপর টেনে নেয়, ফলে তারা আবার আগের মতো কোনো কষ্ট ছাড়াই সাবলীলভাবে হাঁটবেন, নামাজে বসতে পারবেন এবং আপনার সাথে সময় কাটাতে পারবেন। আপনার কাছে হয়তো এটা একটা সামান্য কেনাকাটা, কিন্তু আপনার মা-বাবার কাছে এটা সারা জীবনের কষ্টের মুক্তি আর সন্তান হিসেবে আপনার দেয়া সেরা যত্ন। তারা যখন কোনো ব্যথা ছাড়া মুখে হাসি নিয়ে হাঁটবেন, সেই স্বস্তি আর আনন্দের চেয়ে কি দুনিয়ার আর কোনো টাকা মূল্যবান হতে পারে? আজই তাদের হাতে এই আরামটুকু তুলে দিন।
 Always explain practical benefits.
 
 Focus on:
@@ -433,32 +433,27 @@ async function handleSalesConversation(sender_psid, userText) {
     // ইউজারের নতুন মেসেজটি চ্যাট হিস্ট্রিতে যোগ করা হচ্ছে
     userConversations[sender_psid].push({ role: 'user', content: userText });
 
-    // মেমোরি অতিরিক্ত বড় হয়ে যাওয়া সামলাতে সর্বশেষ ১০টি মেসেজ পাঠানো হচ্ছে
+    // মেমোরি অতিরিক্ত বড় হয়ে যাওয়া সামলাতে সর্বশেষ ১০টি মেসেজ পাঠানো হচ্ছে
     const recentHistory = userConversations[sender_psid].slice(-10);
 
-    // সিস্টেম প্রম্পট ও কথপোকথনের সম্পূর্ণ ইতিহাস Groq-এ পাঠানো হচ্ছে
-    const messagesToSend = [
-      { role: 'system', content: SYSTEM_PROMPT },
-      ...recentHistory
-    ];
+    const geminiResponse = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: recentHistory.map(m => `${m.role}: ${m.content}`).join("\n"),
+      config: {
+        systemInstruction: SYSTEM_PROMPT,
+        temperature: 0.6,
+        maxOutputTokens: 800,
+      }
+    });
 
-    const response = await ai.models.generateContent({
-  model: "gemini-2.5-flash",
-  contents: messagesToSend.map(m => `${m.role}: ${m.content}`).join("\n"),
-  config: {
-    temperature: 0.6,
-    maxOutputTokens: 800,
-  }
-});
-
-const aiReply = response.text || "ধন্যবাদ আপনার বার্তার জন্য! আমি কীভাবে আপনাকে সাহায্য করতে পারি?";
+    const aiReply = geminiResponse.text || "ধন্যবাদ আপনার বার্তার জন্য! আমি কীভাবে আপনাকে সাহায্য করতে পারি?";
 
     // এআই-এর উত্তরটিও মেমোরিতে সেভ করে রাখা হচ্ছে
     userConversations[sender_psid].push({ role: 'assistant', content: aiReply });
 
     console.log(`Sending AI Reply to ${sender_psid}: "${aiReply}"`);
 
-    const response = await axios.post(
+    const fbResponse = await axios.post(
       `https://graph.facebook.com/v18.0/me/messages?access_token=${PAGE_ACCESS_TOKEN}`,
       {
         recipient: { id: sender_psid },
@@ -466,7 +461,7 @@ const aiReply = response.text || "ধন্যবাদ আপনার বা�
       }
     );
 
-    console.log('Message delivered successfully to Meta API!', response.data);
+    console.log('Message delivered successfully to Meta API!', fbResponse.data);
   } catch (error) {
     console.error("Sales Handler Error:", error.response ? error.response.data : error.message);
   }
